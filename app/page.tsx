@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { ProductGrid } from "./components/ProductGrid";
-import { CameraPermission } from "./components/CameraPermission";
+import { ProductGrid } from './components/ProductGrid';
+import { CameraPermission } from './components/CameraPermission';
 
 export default function Home() {
   return (
@@ -48,18 +48,14 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">
-                About AR Try-On
-              </h3>
+              <h3 className="text-sm font-semibold text-gray-900">About AR Try-On</h3>
               <p className="mt-4 text-sm text-gray-600">
-                Use your device camera to see how socks look on your feet in
-                real-time. Works on most modern smartphones and tablets.
+                Use your device camera to see how socks look on your feet in real-time.
+                Works on most modern smartphones and tablets.
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">
-                Supported Devices
-              </h3>
+              <h3 className="text-sm font-semibold text-gray-900">Supported Devices</h3>
               <ul className="mt-4 text-sm text-gray-600 space-y-2">
                 <li>✅ iPhone 12+</li>
                 <li>✅ Android 9+</li>
@@ -68,9 +64,7 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">
-                Need Help?
-              </h3>
+              <h3 className="text-sm font-semibold text-gray-900">Need Help?</h3>
               <ul className="mt-4 text-sm text-gray-600 space-y-2">
                 <li>📖 How it works</li>
                 <li>❓ FAQ</li>
