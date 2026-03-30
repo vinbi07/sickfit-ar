@@ -41,6 +41,8 @@ export interface ShopifyProduct {
   images: ShopifyImage[];
   variants: ShopifyProductVariant[];
   metafields?: ShopifyMetafieldConnection | ShopifyMetafield[];
+  modelUrl?: string;
+  modelScale?: number;
   priceRange?: {
     minVariantPrice: {
       amount: string;

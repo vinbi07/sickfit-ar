@@ -27,6 +27,7 @@ const isShopifyConfigured = Boolean(
 const AR_COLLECTION_HANDLE = 'ar-try-on';
 const AR_COLLECTION_NUMERIC_ID = '595109544100';
 const AR_COLLECTION_GID = `gid://shopify/Collection/${AR_COLLECTION_NUMERIC_ID}`;
+const DEFAULT_SOCK_MODEL_URL = '/models/sock.glb';
 
 if (!isShopifyConfigured) {
   console.warn(
@@ -297,7 +298,7 @@ export async function fetchProductByHandle(
       PRODUCT_BY_HANDLE_QUERY,
       { handle }
     );
-    return data.productByHandle;
+    return data.productByHandle ? mapRawProduct(data.productByHandle as any) : null;
   } catch (error) {
     console.error('Error fetching product by handle:', error);
     return null;
@@ -329,32 +330,40 @@ export function getMetafieldValue(
   return null;
 }
 
+function mapRawProduct(node: any): ShopifyProduct {
+  const metafields = node.metafields;
+  const modelUrl = getMetafieldValue(metafields, 'ar', 'model_url') || DEFAULT_SOCK_MODEL_URL;
+  const modelScaleRaw = getMetafieldValue(metafields, 'ar', 'model_scale');
+  const modelScale = modelScaleRaw ? Number(modelScaleRaw) : undefined;
+
+  return {
+    id: node.id,
+    title: node.title,
+    handle: node.handle,
+    description: node.description,
+    images: node.images?.edges?.map((img: any) => ({
+      id: img.node.id,
+      url: img.node.url,
+      altText: img.node.altText,
+      width: img.node.width,
+      height: img.node.height,
+    })) || [],
+    variants: node.variants?.edges?.map((variant: any) => ({
+      id: variant.node.id,
+      title: variant.node.title,
+      price: variant.node.price?.amount || '0',
+      available: variant.node.availableForSale,
+      sku: variant.node.sku,
+    })) || [],
+    priceRange: node.priceRange,
+    featuredImage: node.featuredImage,
+    metafields,
+    modelUrl,
+    modelScale: Number.isFinite(modelScale) ? modelScale : undefined,
+  };
+}
+
 // Helper function to transform API response to Product[]
 export function transformProducts(connection: ShopifyProductConnection): ShopifyProduct[] {
-  return connection.edges.map((edge) => {
-    const node = edge.node as any;
-    return {
-      id: node.id,
-      title: node.title,
-      handle: node.handle,
-      description: node.description,
-      images: node.images?.edges?.map((img: any) => ({
-        id: img.node.id,
-        url: img.node.url,
-        altText: img.node.altText,
-        width: img.node.width,
-        height: img.node.height,
-      })) || [],
-      variants: node.variants?.edges?.map((variant: any) => ({
-        id: variant.node.id,
-        title: variant.node.title,
-        price: variant.node.price?.amount || '0',
-        available: variant.node.availableForSale,
-        sku: variant.node.sku,
-      })) || [],
-      priceRange: node.priceRange,
-      featuredImage: node.featuredImage,
-      metafields: node.metafields,
-    };
-  });
+  return connection.edges.map((edge) => mapRawProduct(edge.node as any));
 }

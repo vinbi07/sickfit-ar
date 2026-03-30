@@ -18,6 +18,7 @@ export function ProductDetail({ handle }: ProductDetailProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const { setSelectedProduct } = useARStore();
 
@@ -25,6 +26,7 @@ export function ProductDetail({ handle }: ProductDetailProps) {
     const loadProduct = async () => {
       setLoading(true);
       setError(null);
+      setIsDescriptionExpanded(false);
 
       try {
         const fetchedProduct = await fetchProductByHandle(handle);
@@ -58,8 +60,8 @@ export function ProductDetail({ handle }: ProductDetailProps) {
         <h3 className="font-semibold text-red-900">Error Loading Product</h3>
         <p className="mt-2 text-red-700">{error || "Product not found"}</p>
         <Link
-          href="/"
-          className="mt-4 inline-block text-blue-600 hover:text-blue-700"
+          href="/shop"
+          className="mt-4 inline-block text-[#e72027] hover:text-[#c51c22]"
         >
           ← Back to products
         </Link>
@@ -70,6 +72,13 @@ export function ProductDetail({ handle }: ProductDetailProps) {
   const mainImage = product.images?.[selectedImage] || product.images?.[0];
   const price = product.priceRange?.minVariantPrice?.amount || "N/A";
   const currency = product.priceRange?.minVariantPrice?.currencyCode || "USD";
+  const descriptionPreviewLimit = 240;
+  const hasLongDescription =
+    product.description.length > descriptionPreviewLimit;
+  const displayedDescription =
+    isDescriptionExpanded || !hasLongDescription
+      ? product.description
+      : `${product.description.slice(0, descriptionPreviewLimit).trimEnd()}...`;
 
   const handleTryOn = () => {
     setSelectedProduct(product);
@@ -81,8 +90,8 @@ export function ProductDetail({ handle }: ProductDetailProps) {
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Back Button */}
         <Link
-          href="/"
-          className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6"
+          href="/shop"
+          className="mb-6 inline-flex items-center text-[#e72027] hover:text-[#c51c22]"
         >
           ← Back to products
         </Link>
@@ -116,7 +125,7 @@ export function ProductDetail({ handle }: ProductDetailProps) {
                     onClick={() => setSelectedImage(idx)}
                     className={`relative h-20 w-20 rounded-lg overflow-hidden border-2 ${
                       selectedImage === idx
-                        ? "border-blue-600"
+                        ? "border-[#e72027]"
                         : "border-gray-200"
                     }`}
                   >
@@ -151,8 +160,19 @@ export function ProductDetail({ handle }: ProductDetailProps) {
                 Description
               </h2>
               <p className="text-gray-700 whitespace-pre-line">
-                {product.description}
+                {displayedDescription}
               </p>
+              {hasLongDescription && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsDescriptionExpanded((previous) => !previous)
+                  }
+                  className="mt-2 text-sm font-semibold text-[#e72027] hover:text-[#c51c22]"
+                >
+                  {isDescriptionExpanded ? "Read less" : "Show more"}
+                </button>
+              )}
             </div>
 
             {/* Variants */}
@@ -161,24 +181,21 @@ export function ProductDetail({ handle }: ProductDetailProps) {
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
                   Available Sizes
                 </h2>
-                <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {product.variants.map((variant) => (
                     <div
                       key={variant.id}
-                      className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                      className={`rounded-lg border px-3 py-2 text-sm ${
+                        variant.available
+                          ? "border-gray-200 bg-white"
+                          : "border-gray-200 bg-gray-50"
+                      }`}
                     >
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {variant.title}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {variant.available
-                            ? "✅ In Stock"
-                            : "❌ Out of Stock"}
-                        </p>
-                      </div>
-                      <p className="font-semibold text-gray-900">
-                        ${variant.price}
+                      <p className="font-medium text-gray-900 truncate">
+                        {variant.title}
+                      </p>
+                      <p className="mt-1 text-xs text-gray-600">
+                        {variant.available ? "In stock" : "Out of stock"}
                       </p>
                     </div>
                   ))}
@@ -190,18 +207,18 @@ export function ProductDetail({ handle }: ProductDetailProps) {
             <div className="mt-8 flex gap-4">
               <button
                 onClick={handleTryOn}
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                className="flex-1 rounded-lg bg-[#e72027] py-3 font-semibold text-white transition-colors hover:bg-[#c51c22]"
               >
-                🎥 Try On with AR
+                Try On with AR
               </button>
-              <button className="flex-1 border-2 border-blue-600 text-blue-600 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+              <button className="flex-1 rounded-lg border-2 border-black py-3 font-semibold text-black transition-colors hover:bg-black hover:text-white">
                 Add to Cart
               </button>
             </div>
 
             {/* Info Box */}
-            <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-900">
+            <div className="mt-8 rounded-lg border border-[#e72027]/30 bg-[#e72027]/10 p-4">
+              <p className="text-sm text-[#7d1115]">
                 <strong>💡 Pro Tip:</strong> Use Portrait mode on your device
                 and good lighting for the best AR experience. Make sure your
                 feet are fully visible in the camera frame.
